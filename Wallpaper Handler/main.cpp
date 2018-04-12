@@ -17,6 +17,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR CmdLine, int nCmdSho
     CoCreateInstance(__uuidof(DesktopWallpaper), nullptr,
                   CLSCTX_ALL, IID_PPV_ARGS(&pDesktopWallpaper));
 
+    // Getting all the necessary paths
     LPWSTR documents_path = new WCHAR[MAX_PATH];
     SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents_path);
 
@@ -50,7 +51,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR CmdLine, int nCmdSho
     MSG MSG = { 0 };
     while (GetMessage(&MSG, NULL, 0, 0) != 0) {
 
-        // We only care about this...
+        // We only care about hotkeys...
         if (MSG.message == WM_HOTKEY) {
 
             switch (MSG.wParam) {
