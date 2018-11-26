@@ -115,16 +115,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="../wallpaper_hotkeys/main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="icon.ico" />
+    <Image Include="../wallpaper_hotkeys/icon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="wallpaper_hotkeys.rc" />
+    <ResourceCompile Include="../wallpaper_hotkeys/wallpaper_hotkeys.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="resource.h" />
+    <ClInclude Include="../wallpaper_hotkeys/resource.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -15,22 +15,22 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="../wallpaper_hotkeys/main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="icon.ico">
+    <Image Include="../wallpaper_hotkeys/icon.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="wallpaper_hotkeys.rc">
+    <ResourceCompile Include="../wallpaper_hotkeys/wallpaper_hotkeys.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="../wallpaper_hotkeys/resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
