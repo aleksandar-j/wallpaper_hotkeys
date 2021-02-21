@@ -34,7 +34,7 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR CmdLine, int nCmdSho
         return EXIT_FAILURE;
     }
 
-    // Getting all the necessary paths
+    // Getting all necessary paths
     LPWSTR UserDocumentsPath = new WCHAR[MAX_PATH];
     SHGetKnownFolderPath(FOLDERID_Documents, KF_FLAG_DEFAULT, NULL, &UserDocumentsPath);
     LPWSTR WindowsPath = new WCHAR[MAX_PATH];
@@ -47,9 +47,6 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR CmdLine, int nCmdSho
 
     LPWSTR WallpaperDefaultPath = const_cast<LPWSTR>(WallpaperDefaultPath_mem.c_str());
     LPWSTR WallpaperFolderPath = const_cast<LPWSTR>(WallpaperFolderPath_mem.c_str());
-
-    // If Documents\\Wallpaper folder does not exist, make it
-    CreateDirectory(WallpaperFolderPath, NULL);
 
     // Registering those hotkeys...
     RegisterHotKey(NULL, ADVANCE_SLIDESHOW_ID, HOTKEY_MODS, ADVANCE_SLIDESHOW_KEY);
@@ -80,6 +77,9 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR CmdLine, int nCmdSho
 
                 case WALLPAPER_FOLDER_ID:
                 {
+                    // If Documents\\Wallpaper folder does not exist, make it
+                    CreateDirectory(WallpaperFolderPath, NULL);
+
                     IShellItem* WallpapersFolder;
                     SHCreateItemFromParsingName(WallpaperFolderPath, nullptr, IID_PPV_ARGS(&WallpapersFolder));
 
