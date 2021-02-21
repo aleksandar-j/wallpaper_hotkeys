@@ -4,51 +4,60 @@
 #include <Windows.h>
 #include <ShlObj.h>
 
-inline void wallpaper_set(LPWSTR WallpaperPath);
-inline void slideshow_set(LPWSTR SlideshowFolderPath);
-
-// -------------------------------------------------------------------------
-IDesktopWallpaper *pDesktopWallpaper = nullptr;
-
-int CALLBACK
-WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR CmdLine, int nCmdShow)
-{
-    CoInitialize(nullptr);
-    CoCreateInstance(__uuidof(DesktopWallpaper), nullptr,
-                  CLSCTX_ALL, IID_PPV_ARGS(&pDesktopWallpaper));
-
-    // Getting all the necessary paths
-    LPWSTR documents_path = new WCHAR[MAX_PATH];
-    SHGetFolderPath(NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT, documents_path);
-
-    std::wstring WindowsWallPath_mem = L"c:\\windows\\web\\wallpaper\\windows\\img0.jpg";
-    std::wstring WallFolderPath_mem{ documents_path };
-    WallFolderPath_mem += L"\\wallpapers\\";
-
-    LPWSTR WindowsWallPath = const_cast<LPWSTR>(WindowsWallPath_mem.c_str());
-    LPWSTR WallFolderPath = const_cast<LPWSTR>(WallFolderPath_mem.c_str());
-
 // Things this code will do
-#define ADV_SLIDE_ID 623
+#define WALLPAPER_FOLDER_ID 10
+#define WALLPAPER_FOLDER_KEY 'S'
+#define ADVANCE_SLIDESHOW_ID 11
+#define ADVANCE_SLIDESHOW_KEY 'A'
 
-#define WALLPAPER_FOLDER_ID 1201
-#define DEFAULT_DESKTOP_ID 1200
+#define WALLPAPER_DEFAULT_ID 1
+#define WALLPAPER_DEFAULT_KEY 'D'
 
-#define SELF_DESTRUCT 9999
+#define SELF_DESTRUCT_ID 0
+#define SELF_DESTRUCT_KEY 'Q'
 
 // Keys that need to be held
 #define HOTKEY_MODS (MOD_ALT | MOD_CONTROL)
 
+int CALLBACK
+WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR CmdLine, int nCmdShow)
+{
+    HRESULT COMInitializeRes = CoInitializeEx(nullptr, 0);
+    if (COMInitializeRes != S_OK) {
+        return EXIT_FAILURE;
+    }
+
+    IDesktopWallpaper* pDesktopWallpaper;
+    HRESULT DesktopWallpaperRes = CoCreateInstance(CLSID_DesktopWallpaper, nullptr,
+                                                CLSCTX_ALL, IID_PPV_ARGS(&pDesktopWallpaper));
+    if (DesktopWallpaperRes != S_OK) {
+        return EXIT_FAILURE;
+    }
+
+    // Getting all the necessary paths
+    LPWSTR UserDocumentsPath = new WCHAR[MAX_PATH];
+    SHGetKnownFolderPath(FOLDERID_Documents, KF_FLAG_DEFAULT, NULL, &UserDocumentsPath);
+    LPWSTR WindowsPath = new WCHAR[MAX_PATH];
+    SHGetKnownFolderPath(FOLDERID_Windows, KF_FLAG_DEFAULT, NULL, &WindowsPath);
+
+    std::wstring WallpaperDefaultPath_mem{ WindowsPath };
+    WallpaperDefaultPath_mem += L"\\web\\wallpaper\\windows\\img0.jpg";
+    std::wstring WallpaperFolderPath_mem{ UserDocumentsPath };
+    WallpaperFolderPath_mem += L"\\Wallpapers\\";
+
+    LPWSTR WallpaperDefaultPath = const_cast<LPWSTR>(WallpaperDefaultPath_mem.c_str());
+    LPWSTR WallpaperFolderPath = const_cast<LPWSTR>(WallpaperFolderPath_mem.c_str());
+
     // Registering those hotkeys...
-    RegisterHotKey(NULL, ADV_SLIDE_ID, HOTKEY_MODS, 'A');
+    RegisterHotKey(NULL, ADVANCE_SLIDESHOW_ID, HOTKEY_MODS, ADVANCE_SLIDESHOW_KEY);
 
-    RegisterHotKey(NULL, WALLPAPER_FOLDER_ID, HOTKEY_MODS, 'S');
-    RegisterHotKey(NULL, DEFAULT_DESKTOP_ID, HOTKEY_MODS, 'D');
+    RegisterHotKey(NULL, WALLPAPER_FOLDER_ID, HOTKEY_MODS, WALLPAPER_FOLDER_KEY);
+    RegisterHotKey(NULL, WALLPAPER_DEFAULT_ID, HOTKEY_MODS, WALLPAPER_DEFAULT_KEY);
 
-    RegisterHotKey(NULL, SELF_DESTRUCT, HOTKEY_MODS, 'Q');
+    RegisterHotKey(NULL, SELF_DESTRUCT_ID, HOTKEY_MODS, SELF_DESTRUCT_KEY);
 
     // Main loop
-    MSG MSG = { 0 };
+    MSG MSG;
     while (GetMessage(&MSG, NULL, 0, 0) != 0) {
 
         // We only care about hotkeys...
@@ -56,22 +65,28 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR CmdLine, int nCmdSho
 
             switch (MSG.wParam) {
                 
-                case ADV_SLIDE_ID:
+                case ADVANCE_SLIDESHOW_ID:
                 {
                     pDesktopWallpaper->AdvanceSlideshow(NULL, DSD_FORWARD);
                 } break;
 
-                case DEFAULT_DESKTOP_ID:
+                case WALLPAPER_DEFAULT_ID:
                 {
-                    wallpaper_set(WindowsWallPath);
+                    pDesktopWallpaper->SetWallpaper(NULL, WallpaperDefaultPath);
                 } break;
 
                 case WALLPAPER_FOLDER_ID:
                 {
-                    slideshow_set(WallFolderPath);
+                    IShellItem* WallpapersFolder;
+                    SHCreateItemFromParsingName(WallpaperFolderPath, nullptr, IID_PPV_ARGS(&WallpapersFolder));
+
+                    IShellItemArray* WallpapersArray;
+                    SHCreateShellItemArrayFromShellItem(WallpapersFolder, IID_PPV_ARGS(&WallpapersArray));
+
+                    pDesktopWallpaper->SetSlideshow(WallpapersArray);
                 } break;
 
-                case SELF_DESTRUCT:
+                case SELF_DESTRUCT_ID:
                 {
                     return EXIT_SUCCESS;
                 } break;
@@ -83,25 +98,4 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR CmdLine, int nCmdSho
     }
     
     return EXIT_SUCCESS;
-}
-
-// -------------------------------------------------------------------------
-inline void wallpaper_set(LPWSTR WallpaperPath) 
-{
-    pDesktopWallpaper->SetWallpaper(NULL, WallpaperPath);
-}
-
-inline void slideshow_set(LPWSTR SlideshowFolderPath)
-{
-    IShellItem *WallpapersFolder;
-    CoCreateInstance(CLSID_ShellItem, nullptr,
-                        CLSCTX_ALL, IID_PPV_ARGS(&WallpapersFolder));
-
-    SHCreateItemFromParsingName(SlideshowFolderPath, nullptr, IID_PPV_ARGS(&WallpapersFolder));
-
-    IShellItemArray *WallpapersArray;
-    SHCreateShellItemArrayFromShellItem(WallpapersFolder,
-                            IID_IShellItemArray, (void**)&WallpapersArray);
-
-    pDesktopWallpaper->SetSlideshow(WallpapersArray);
 }
