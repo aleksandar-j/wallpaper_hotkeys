@@ -56,6 +56,9 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR CmdLine, int nCmdSho
 
     RegisterHotKey(NULL, SELF_DESTRUCT_ID, HOTKEY_MODS, SELF_DESTRUCT_KEY);
 
+    // Notify user that the program is running
+    MessageBox(NULL, L"Wallpaper Hotkeys is running in the background", L"Wallpaper Hotkeys", MB_OK);
+
     // Main loop
     MSG MSG;
     while (GetMessage(&MSG, NULL, 0, 0) != 0) {
@@ -91,6 +94,9 @@ WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR CmdLine, int nCmdSho
 
                 case SELF_DESTRUCT_ID:
                 {
+                    // Notify the user about the exit
+                    MessageBox(NULL, L"Wallpaper Hotkeys has stopped running", L"Wallpaper Hotkeys", MB_OK);
+                    
                     return EXIT_SUCCESS;
                 } break;
 
