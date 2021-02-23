@@ -5,19 +5,19 @@
 #include <ShlObj.h>
 
 // Things this code will do
-#define WALLPAPER_FOLDER_ID 10
-#define WALLPAPER_FOLDER_KEY 'S'
-#define ADVANCE_SLIDESHOW_ID 11
-#define ADVANCE_SLIDESHOW_KEY 'A'
+constexpr int WALLPAPER_FOLDER_ID = 10;
+constexpr UINT WALLPAPER_FOLDER_KEY = 'S';
+constexpr int ADVANCE_SLIDESHOW_ID = 11;
+constexpr UINT ADVANCE_SLIDESHOW_KEY = 'A';
 
-#define WALLPAPER_DEFAULT_ID 1
-#define WALLPAPER_DEFAULT_KEY 'D'
+constexpr int WALLPAPER_DEFAULT_ID = 1;
+constexpr UINT WALLPAPER_DEFAULT_KEY = 'D';
 
-#define SELF_DESTRUCT_ID 0
-#define SELF_DESTRUCT_KEY 'Q'
+constexpr int SELF_DESTRUCT_ID = 0;
+constexpr UINT SELF_DESTRUCT_KEY = 'Q';
 
 // Keys that need to be held
-#define HOTKEY_MODS (MOD_ALT | MOD_CONTROL)
+constexpr UINT HOTKEY_MODS = MOD_ALT | MOD_CONTROL;
 
 int CALLBACK
 WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR CmdLine, _In_ int nCmdShow)
