@@ -20,7 +20,7 @@
 #define HOTKEY_MODS (MOD_ALT | MOD_CONTROL)
 
 int CALLBACK
-WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR CmdLine, int nCmdShow)
+WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR CmdLine, _In_ int nCmdShow)
 {
     HRESULT COMInitializeRes = CoInitializeEx(nullptr, 0);
     if (COMInitializeRes != S_OK) {
