@@ -57,7 +57,7 @@ WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR C
     RegisterHotKey(NULL, SELF_DESTRUCT_ID, HOTKEY_MODS, SELF_DESTRUCT_KEY);
 
     // Notify user that the program is running
-    MessageBox(NULL, L"Wallpaper Hotkeys is running in the background", L"Wallpaper Hotkeys", MB_OK);
+    MessageBox(NULL, L"Wallpaper Hotkeys is running in the background, use CTRL+ALT+Q to exit", L"Wallpaper Hotkeys", MB_OK);
 
     // Main loop
     MSG MSG;
