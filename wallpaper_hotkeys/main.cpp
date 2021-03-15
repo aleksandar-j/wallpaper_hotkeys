@@ -1,6 +1,4 @@
 
-#include <string>
-
 #include <Windows.h>
 #include <ShlObj.h>
 
@@ -34,19 +32,19 @@ WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR C
         return EXIT_FAILURE;
     }
 
-    // Getting all necessary paths
+    // Get all base paths we need
     LPWSTR UserDocumentsPath = new WCHAR[MAX_PATH];
     SHGetKnownFolderPath(FOLDERID_Documents, KF_FLAG_DEFAULT, NULL, &UserDocumentsPath);
     LPWSTR WindowsPath = new WCHAR[MAX_PATH];
     SHGetKnownFolderPath(FOLDERID_Windows, KF_FLAG_DEFAULT, NULL, &WindowsPath);
-
-    std::wstring WallpaperDefaultPath_mem{ WindowsPath };
-    WallpaperDefaultPath_mem += L"\\web\\wallpaper\\windows\\img0.jpg";
-    std::wstring WallpaperFolderPath_mem{ UserDocumentsPath };
-    WallpaperFolderPath_mem += L"\\Wallpapers\\";
-
-    LPWSTR WallpaperDefaultPath = const_cast<LPWSTR>(WallpaperDefaultPath_mem.c_str());
-    LPWSTR WallpaperFolderPath = const_cast<LPWSTR>(WallpaperFolderPath_mem.c_str());
+    
+    // Creating folder paths
+    LPWSTR WallpaperDefaultPath = new WCHAR[MAX_PATH];
+    wcscpy_s(WallpaperDefaultPath, MAX_PATH, WindowsPath);
+    wcscat_s(WallpaperDefaultPath, MAX_PATH, L"\\web\\wallpaper\\windows\\img0.jpg");
+    LPWSTR WallpaperFolderPath = new WCHAR[MAX_PATH];
+    wcscpy_s(WallpaperFolderPath, MAX_PATH, UserDocumentsPath);
+    wcscat_s(WallpaperFolderPath, MAX_PATH, L"\\Wallpapers\\");
 
     // Registering those hotkeys...
     RegisterHotKey(NULL, ADVANCE_SLIDESHOW_ID, HOTKEY_MODS, ADVANCE_SLIDESHOW_KEY);
