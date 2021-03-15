@@ -33,18 +33,53 @@ WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR C
     }
 
     // Get all base paths we need
+    LPWSTR CurrentDirectoryPath = new WCHAR[MAX_PATH];
+    GetCurrentDirectory(MAX_PATH, CurrentDirectoryPath);
     LPWSTR UserDocumentsPath = new WCHAR[MAX_PATH];
     SHGetKnownFolderPath(FOLDERID_Documents, KF_FLAG_DEFAULT, NULL, &UserDocumentsPath);
     LPWSTR WindowsPath = new WCHAR[MAX_PATH];
     SHGetKnownFolderPath(FOLDERID_Windows, KF_FLAG_DEFAULT, NULL, &WindowsPath);
     
-    // Creating folder paths
+    // Create default values for ini variables
+    LPWSTR DefaultWallpaperDefaultPath = new WCHAR[MAX_PATH];
+    wcscpy_s(DefaultWallpaperDefaultPath, MAX_PATH, WindowsPath);
+    wcscat_s(DefaultWallpaperDefaultPath, MAX_PATH, L"\\web\\wallpaper\\windows\\img0.jpg");
+    
+    LPWSTR DefaultWallpaperSlideshowFolderPath = new WCHAR[MAX_PATH];
+    wcscpy_s(DefaultWallpaperSlideshowFolderPath, MAX_PATH, UserDocumentsPath);
+    wcscat_s(DefaultWallpaperSlideshowFolderPath, MAX_PATH, L"\\Wallpapers\\");
+
+    // Set up ini path and write default values if ini not present
+    LPWSTR INIPath = new WCHAR[MAX_PATH];
+    wcscpy_s(INIPath, MAX_PATH, CurrentDirectoryPath);
+    wcscat_s(INIPath, MAX_PATH, L"\\wallpaper_hotkeys.ini");
+
+    DWORD dwAttrib = GetFileAttributes(INIPath);
+    if (dwAttrib == INVALID_FILE_ATTRIBUTES) {
+        WritePrivateProfileString(L"settings", L"ShowMessageBoxEnter", L"1", INIPath);
+        WritePrivateProfileString(L"settings", L"ShowMessageBoxExit", L"1", INIPath);
+        WritePrivateProfileString(L"settings", L"WallpaperDefaultPath", DefaultWallpaperDefaultPath, INIPath);
+        WritePrivateProfileString(L"settings", L"WallpaperSlideshowFolderPath", DefaultWallpaperSlideshowFolderPath, INIPath);
+    }
+
+    // Read variables from ini file, write default values if individual values are not present
+    LPWSTR ShowMessageBoxEnter = new WCHAR[8];
+    GetPrivateProfileString(L"settings", L"ShowMessageBoxEnter", NULL, ShowMessageBoxEnter, 8, INIPath);
+    LPWSTR ShowMessageBoxExit = new WCHAR[8];
+    GetPrivateProfileString(L"settings", L"ShowMessageBoxExit", NULL, ShowMessageBoxExit, 8, INIPath);
+
+    LPWSTR WallpaperSlideshowFolderPath = new WCHAR[MAX_PATH];
+    GetPrivateProfileString(L"settings", L"WallpaperSlideshowFolderPath", NULL, WallpaperSlideshowFolderPath, MAX_PATH, INIPath);
+    if (WallpaperSlideshowFolderPath[0] == 0) {
+        WritePrivateProfileString(L"settings", L"WallpaperSlideshowFolderPath", DefaultWallpaperSlideshowFolderPath, INIPath);
+        wcscpy_s(WallpaperSlideshowFolderPath, MAX_PATH, DefaultWallpaperSlideshowFolderPath);
+    }
     LPWSTR WallpaperDefaultPath = new WCHAR[MAX_PATH];
-    wcscpy_s(WallpaperDefaultPath, MAX_PATH, WindowsPath);
-    wcscat_s(WallpaperDefaultPath, MAX_PATH, L"\\web\\wallpaper\\windows\\img0.jpg");
-    LPWSTR WallpaperFolderPath = new WCHAR[MAX_PATH];
-    wcscpy_s(WallpaperFolderPath, MAX_PATH, UserDocumentsPath);
-    wcscat_s(WallpaperFolderPath, MAX_PATH, L"\\Wallpapers\\");
+    GetPrivateProfileString(L"settings", L"WallpaperDefaultPath", NULL, WallpaperDefaultPath, MAX_PATH, INIPath);
+    if (WallpaperDefaultPath[0] == 0) {
+        WritePrivateProfileString(L"settings", L"WallpaperDefaultPath", DefaultWallpaperDefaultPath, INIPath);
+        wcscpy_s(WallpaperDefaultPath, MAX_PATH, DefaultWallpaperDefaultPath);
+    }
 
     // Registering those hotkeys...
     RegisterHotKey(NULL, ADVANCE_SLIDESHOW_ID, HOTKEY_MODS, ADVANCE_SLIDESHOW_KEY);
@@ -55,7 +90,9 @@ WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR C
     RegisterHotKey(NULL, SELF_DESTRUCT_ID, HOTKEY_MODS, SELF_DESTRUCT_KEY);
 
     // Notify user that the program is running
-    MessageBox(NULL, L"Wallpaper Hotkeys is running in the background, use CTRL+ALT+Q to exit", L"Wallpaper Hotkeys", MB_OK);
+    if (ShowMessageBoxEnter[0] == L'1') {
+        MessageBox(NULL, L"Wallpaper Hotkeys is running in the background, use CTRL+ALT+Q to exit, edit ini file to remove this message", L"Wallpaper Hotkeys", MB_OK);
+    }
 
     // Main loop
     MSG MSG;
@@ -79,10 +116,10 @@ WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR C
                 case WALLPAPER_FOLDER_ID:
                 {
                     // If Documents\\Wallpaper folder does not exist, make it
-                    CreateDirectory(WallpaperFolderPath, NULL);
+                    CreateDirectory(WallpaperSlideshowFolderPath, NULL);
 
                     IShellItem* WallpapersFolder;
-                    SHCreateItemFromParsingName(WallpaperFolderPath, nullptr, IID_PPV_ARGS(&WallpapersFolder));
+                    SHCreateItemFromParsingName(WallpaperSlideshowFolderPath, nullptr, IID_PPV_ARGS(&WallpapersFolder));
 
                     IShellItemArray* WallpapersArray;
                     SHCreateShellItemArrayFromShellItem(WallpapersFolder, IID_PPV_ARGS(&WallpapersArray));
@@ -93,8 +130,10 @@ WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR C
                 case SELF_DESTRUCT_ID:
                 {
                     // Notify the user about the exit
-                    MessageBox(NULL, L"Wallpaper Hotkeys has stopped running", L"Wallpaper Hotkeys", MB_OK);
-                    
+                    if (ShowMessageBoxExit[0] == L'1') {
+                        MessageBox(NULL, L"Wallpaper Hotkeys has stopped running", L"Wallpaper Hotkeys", MB_OK);
+                    }
+
                     return EXIT_SUCCESS;
                 } break;
 
