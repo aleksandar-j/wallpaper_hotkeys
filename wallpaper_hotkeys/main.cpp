@@ -91,7 +91,7 @@ WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR C
 
     // Notify user that the program is running
     if (ShowMessageBoxEnter[0] == L'1') {
-        MessageBox(NULL, L"Wallpaper Hotkeys is running in the background, use CTRL+ALT+Q to exit, edit ini file to remove this message", L"Wallpaper Hotkeys", MB_OK);
+        MessageBox(NULL, L"Wallpaper Hotkeys is running in the background, use CTRL+ALT+Q to exit.\nEdit the ini file to remove this message.", L"Wallpaper Hotkeys", MB_OK);
     }
 
     // Main loop
@@ -131,7 +131,7 @@ WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR C
                 {
                     // Notify the user about the exit
                     if (ShowMessageBoxExit[0] == L'1') {
-                        MessageBox(NULL, L"Wallpaper Hotkeys has stopped running", L"Wallpaper Hotkeys", MB_OK);
+                        MessageBox(NULL, L"Wallpaper Hotkeys has stopped running.", L"Wallpaper Hotkeys", MB_OK);
                     }
 
                     return EXIT_SUCCESS;
